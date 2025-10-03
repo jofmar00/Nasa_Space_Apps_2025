@@ -1,0 +1,11 @@
+<div class="star-background">
+  <div
+    class="star"
+    *ngFor="let star of stars"
+    [style.left.%]="star.left"
+    [style.top.%]="star.top"
+    [style.animation-delay.s]="star.animationDelay"
+    [style.width.px]="star.size"
+    [style.height.px]="star.size">
+  </div>
+</div>
