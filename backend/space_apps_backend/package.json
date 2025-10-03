@@ -18,14 +18,17 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-	"build-docker": "docker build -t space_apps_2025_backend .",
+    "build-docker": "docker build -t space_apps_2025_backend .",
     "start-docker": "docker run -d -it -p 3000:3000 space_apps_2025_backend",
     "deploy-docker": " docker tag space_apps_2025_backend:latest jofmar/space_apps_2025_backend:latest && docker push jofmar/space_apps_2025_backend:latest"
   },
   "dependencies": {
+    "@nestjs/axios": "^4.0.1",
     "@nestjs/common": "^11.0.1",
+    "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
     "@nestjs/platform-express": "^11.0.1",
+    "express": "^5.1.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
   },
