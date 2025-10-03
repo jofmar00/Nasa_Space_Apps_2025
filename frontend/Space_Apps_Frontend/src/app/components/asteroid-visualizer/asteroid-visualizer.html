@@ -1,0 +1,15 @@
+<div class="asteroid-container">
+  <div #canvasContainer class="canvas-container"></div>
+
+  @if (loading) {
+    <div class="loading-overlay">
+      <div class="loading-spinner"></div>
+    </div>
+  }
+
+  @if (error) {
+    <div class="error-overlay">
+      <p class="error-icon">⚠️</p>
+    </div>
+  }
+</div>

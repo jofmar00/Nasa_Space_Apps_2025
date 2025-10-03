@@ -4,7 +4,14 @@ import { RouterOutlet } from '@angular/router';
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet],
-  template: `<router-outlet />`,
+  template: `
+    <main>
+      <router-outlet />
+    </main>
+  `,
+  styles: `
+    main { height: 100dvh; width: 100dvw }
+  `
 })
 export class App {
   protected readonly title = signal('Space_Apps_Frontend');

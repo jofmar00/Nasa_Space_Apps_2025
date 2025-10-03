@@ -13,6 +13,7 @@ html {
   -moz-text-size-adjust: none;
   -webkit-text-size-adjust: none;
   text-size-adjust: none;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 /* Remove default margin in favour of better control in authored CSS */
@@ -29,8 +30,11 @@ ol[role='list'] {
 
 /* Set core body defaults */
 body {
+  margin: 0;
+  padding: 0;
   min-height: 100vh;
   line-height: 1.5;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 /* Set shorter line heights on headings and interactive elements */

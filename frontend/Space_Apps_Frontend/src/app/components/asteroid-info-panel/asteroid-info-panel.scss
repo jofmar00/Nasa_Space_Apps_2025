@@ -1,0 +1,154 @@
+.asteroid-panel {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  width: 380px;
+  max-height: 700px;
+  transform: translateY(-50%);
+  background: rgba(50, 50, 59, 0.95);
+  backdrop-filter: blur(10px);
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px 0 0 10px;
+  color: white;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 100;
+  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.5);
+
+  &.collapsed {
+    transform: translate(100%, -50%);
+  }
+
+}
+
+.asteroid-header {
+  margin: 0 0 20px 0;
+  font-size: 1.8rem;
+  color: #F44336;
+  text-align: center;
+  font-weight: 600;
+}
+
+.toggle-button {
+  position: absolute;
+  left: -40px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 80px;
+  background: rgba(10, 10, 20, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-right: none;
+  border-radius: 8px 0 0 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  z-index: 101;
+
+  &:hover {
+    background: rgba(20, 20, 30, 0.98);
+    left: -45px;
+    width: 45px;
+  }
+
+  .toggle-icon {
+    font-size: 1.5rem;
+    color: #F44336;
+    transition: transform 0.3s;
+  }
+}
+
+.panel-content {
+  height: 100%;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.asteroid-viewer {
+  width: 50%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  border: 1px solid rgba(244, 67, 54, 0.4);
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+
+  &:hover {
+    border-color: #F44336;
+    box-shadow: 0 0 20px rgba(244, 67, 54, 0.4);
+    transform: scale(1.02);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.asteroid-properties {
+  flex: 1;
+
+  .property {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+    .label {
+      color: #aaa;
+      font-weight: 500;
+    }
+
+    .value {
+      color: #fff;
+      font-weight: 600;
+      text-align: right;
+    }
+  }
+
+  .description {
+    margin-top: 20px;
+    line-height: 1.6;
+    color: #ccc;
+    font-size: 0.95rem;
+    text-align: justify;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .asteroid-panel {
+    width: 100%;
+    max-width: 90vw;
+    max-height: 80vh;
+
+    &.collapsed {
+      transform: translate(100%, -50%);
+    }
+  }
+
+  .toggle-button {
+    left: -35px;
+    width: 35px;
+    height: 60px;
+
+    &:hover {
+      left: -38px;
+      width: 38px;
+    }
+
+    .toggle-icon {
+      font-size: 1.2rem;
+    }
+  }
+
+  .asteroid-viewer {
+    height: 200px;
+  }
+}

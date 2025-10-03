@@ -1,0 +1,39 @@
+<aside class="asteroid-panel" [class.collapsed]="!isPanelOpen()">
+  <button class="toggle-button" (click)="togglePanel()" [attr.aria-label]="isPanelOpen() ? 'Close panel' : 'Open panel'">
+    <span class="toggle-icon">{{ isPanelOpen() ? '→' : '←' }}</span>
+  </button>
+
+  <div class="panel-content">
+    <h2 class="asteroid-header">{{ selectedAsteroid().name }}</h2>
+
+    <div class="asteroid-viewer" (click)="openCatalog()" title="Click to select another asteroid">
+      <asteroid-visualizer [asteroidName]="selectedAsteroid().name.toLowerCase()" />
+    </div>
+
+    <div class="asteroid-properties">
+      <div class="property">
+        <span class="label">Size:</span>
+        <span class="value">{{ selectedAsteroid().size }} m</span>
+      </div>
+
+      <div class="property">
+        <span class="label">Mass:</span>
+        <span class="value">{{ formatMass(selectedAsteroid().mass) }}</span>
+      </div>
+
+      <div class="property">
+        <span class="label">Default Speed:</span>
+        <span class="value">{{ selectedAsteroid().defaultSpeed }} km/s</span>
+      </div>
+
+      <div class="property">
+        <span class="label">Default Angle:</span>
+        <span class="value">{{ selectedAsteroid().defaultAngle }}°</span>
+      </div>
+
+      <p class="description">{{ selectedAsteroid().description }}</p>
+    </div>
+  </div>
+</aside>
+
+<asteroid-catalog-dialog #catalogDialog (asteroidSelected)="onAsteroidSelected($event)" />

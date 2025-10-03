@@ -1,0 +1,19 @@
+<div class="dialog-backdrop" [class.hidden]="!isOpen()" (click)="onBackdropClick($event)">
+  <div class="dialog-content">
+    <div class="dialog-header">
+      <h2>Select Asteroid</h2>
+      <button class="close-button" (click)="close()" aria-label="Close dialog">×</button>
+    </div>
+
+    <div class="asteroid-grid">
+      @for (asteroid of asteroids; track asteroid.id) {
+        <div class="asteroid-card" (click)="selectAsteroid(asteroid)">
+          <div class="asteroid-preview">
+            <asteroid-visualizer [asteroidName]="asteroid.name.toLowerCase()" />
+          </div>
+          <h3 class="asteroid-name">{{ asteroid.name }}</h3>
+        </div>
+      }
+    </div>
+  </div>
+</div>
