@@ -1,5 +1,8 @@
 <div class="simulator-container">
   <div class="earth-container" #earthContainer></div>
 
-  <asteroid-info-panel />
+  <asteroid-info-panel
+    [hasTarget]="!!targetPoint()"
+    [isLaunching]="launchState() === 'launching'"
+    (launchAsteroid)="onLaunchAsteroid($event)" />
 </div>

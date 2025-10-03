@@ -1,4 +1,4 @@
-import { Component, signal, viewChild } from '@angular/core';
+import { Component, signal, viewChild, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AsteroidVisualizer } from '../asteroid-visualizer/asteroid-visualizer';
 import { AsteroidCatalogDialog } from '../asteroid-catalog-dialog/asteroid-catalog-dialog';
@@ -13,6 +13,13 @@ import { Asteroid } from '../../models/asteroid.model';
   styleUrl: './asteroid-info-panel.scss'
 })
 export class AsteroidInfoPanel {
+  // Inputs
+  hasTarget = input<boolean>(false);
+  isLaunching = input<boolean>(false);
+
+  // Outputs
+  launchAsteroid = output<Asteroid>();
+
   protected readonly selectedAsteroid = signal<Asteroid>(asteroidNames[0]);
   protected readonly isPanelOpen = signal<boolean>(true);
 
@@ -28,6 +35,10 @@ export class AsteroidInfoPanel {
 
   protected togglePanel(): void {
     this.isPanelOpen.set(!this.isPanelOpen());
+  }
+
+  protected onLaunchClick(): void {
+    this.launchAsteroid.emit(this.selectedAsteroid());
   }
 
   protected formatMass(mass: number): string {

@@ -182,15 +182,11 @@ export class AsteroidVisualizer implements AfterViewInit, OnDestroy {
       const scale = 1.5 / maxDim;
       this.asteroid.scale.setScalar(scale);
 
-      console.log('Asteroid loaded:', name);
-      console.log('Original size:', size);
-      console.log('Scale factor:', scale);
-
       // Apply material to all meshes
       this.asteroid.traverse((child) => {
         if (child instanceof THREE.Mesh) {
           child.material = new THREE.MeshPhongMaterial({
-            color: 0xaaaaaa,
+            color: 0x806565,
             shininess: 30,
             flatShading: false,
             side: THREE.DoubleSide

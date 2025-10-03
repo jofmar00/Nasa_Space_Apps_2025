@@ -33,6 +33,13 @@
 
       <p class="description">{{ selectedAsteroid().description }}</p>
     </div>
+
+    <button
+      class="launch-button"
+      [disabled]="!hasTarget() || isLaunching()"
+      (click)="onLaunchClick()">
+      {{ isLaunching() ? 'Launching...' : 'Launch Impact' }}
+    </button>
   </div>
 </aside>
 
