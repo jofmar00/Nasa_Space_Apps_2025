@@ -51,8 +51,9 @@ export class AsteroidsController {
     @Get('/modifiedImage')
     async getModifiedImage(
         @Query('img_id') image_id: string,
+        @Query('years') years: number
     ) {
-        return await this.asteroidService.editImage(image_id, 0);
+        return await this.asteroidService.editImage(image_id, years);
     }
 
 }

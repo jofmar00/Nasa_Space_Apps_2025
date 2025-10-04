@@ -69,7 +69,7 @@ export class AsteroidsService {
     getExplosionRadius(velocity: number, mass: number) {
         let E = 0.5 * mass * velocity * velocity;
         console.log(`E: ${E}`)
-        let W = E / (4.18e6);
+        let W = E / (4.18e12);
         console.log(`W: ${W}`)
         let R = Math.pow(W, 1/3) * 4.5;
         return R;
@@ -209,11 +209,14 @@ export class AsteroidsService {
         let prompt;
         // Creamos prompt
         if (years == 0) {
-            prompt = "Modifica esta imagen con las consecuencias de impacto de un meteorito que acaba de suceder a partir de la siguiente imagen satelital." +
-            "Si el centro de la foto se corresponde con agua, genera una impresion de grandes oleajes, si es tierra, crea un socavon de tierra e incendio alrededor."
+            prompt = "Modify a satellite image of Earth. Focus only on the center:  " +
+                "- If the center shows land, replace it with a realistic sinkhole or crater, deep and irregular, with cracks, shadows, displaced soil, and natural color variations, blending seamlessly with the surrounding terrain.  " +
+                "- If the center shows water, replace it with strong turbulent waves, with foam, ripples, and light reflections, contrasting with calmer water around.  " +
+                "Keep the overall image looking like an authentic satellite photo, with natural Earth tones, realistic lighting, consistent resolution, and no alterations outside the central area.  ";
+
         }
         else if (years == 1) {
-
+            prompt = "Create a realistic satellite image showing the same location one year after a meteorite impact. The scene must depict visible post-impact changes: a large eroded crater with softened edges, scattered debris, altered terrain textures, and signs of vegetation regrowth or sediment accumulation. If the area was water, show disturbed coastlines, sediment plumes, and partial flooding around the impact site. Maintain the appearance of an authentic satellite photograph with natural Earth tones, accurate lighting, and seamless blending with the surroundings, as if captured by a real Earth observation satellite. ";
         }
         else {
 
@@ -230,8 +233,9 @@ export class AsteroidsService {
           },
           body: form,
         });
-        const data = await response.json();
+        const data: any = await response.json();
         console.log(data);  
-        return data;
+        fs.unlink(`${img_id}.png`, ()=>{});
+        return data.data[0].url;
     }
 }
