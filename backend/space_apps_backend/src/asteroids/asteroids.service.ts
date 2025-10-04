@@ -40,7 +40,7 @@ export class AsteroidsService {
     this.openaiApiKey = this.configService.get<string>('OPENAI_API_KEY');
   }
   delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   // TODO DARLE TAMBIEN LA MASA
@@ -157,7 +157,8 @@ export class AsteroidsService {
             'especificos de ciudades y zonas afectadas, es extremadamente importante que no menciones en ningun momento las coordenadas, ni las palabras "latitud" y "longitud".' +
             'Si el instante temporal es mayor a 0 años, habla del proceso de recuperacion de estos factores en la region afectada' +
             'Hila el contenido de tu respuesta sin mencionar los temas que te hemos pedido directamente, especificamente, no nombres de manera directa "geopolitica" y "situacion medioambiental" ' +
-            'Redacta la respuesta como un narrador omnisciente en tercera persona',
+            'Redacta la respuesta como un narrador omnisciente en tercera persona' +
+            'Usa un maximo de 300 palabras',
         },
         {
           role: 'user',
@@ -214,10 +215,7 @@ export class AsteroidsService {
     // Creamos prompt
     if (years == 0) {
       prompt =
-        'Modify a satellite image of Earth. Focus only on the center:  ' +
-        '- If the center shows land, replace it with a realistic sinkhole or crater, deep and irregular, with cracks, shadows, displaced soil, and natural color variations, blending seamlessly with the surrounding terrain.  ' +
-        '- If the center shows water, replace it with strong turbulent waves, with foam, ripples, and light reflections, contrasting with calmer water around.  ' +
-        'Keep the overall image looking like an authentic satellite photo, with natural Earth tones, realistic lighting, consistent resolution, and no alterations outside the central area.  ';
+        'Modify a satellite image of Earth. Focus only on the center: eplace it with a realistic sinkhole or crater.';
     } else if (years == 1) {
       prompt =
         'Create a realistic satellite image showing the same location one year after a meteorite impact. The scene must depict visible post-impact changes: a large eroded crater with softened edges, scattered debris, altered terrain textures, and signs of vegetation regrowth or sediment accumulation. If the area was water, show disturbed coastlines, sediment plumes, and partial flooding around the impact site. Maintain the appearance of an authentic satellite photograph with natural Earth tones, accurate lighting, and seamless blending with the surroundings, as if captured by a real Earth observation satellite. ';

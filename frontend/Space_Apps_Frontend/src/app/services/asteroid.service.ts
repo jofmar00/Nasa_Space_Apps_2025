@@ -53,7 +53,7 @@ export class AsteroidService {
 
   public async getModifiedImage(imageId: string, years: number) {
     try {
-      const response = await this.http.get(`${environment.API_URL}asteroids/modifiedImage?img_id=${imageId}&years=${years}`, { responseType: 'arraybuffer' }).toPromise();
+      const response = await this.http.get(`${environment.API_URL}asteroids/modifiedImage?img_id=${imageId}&years=${years}`, { responseType: 'text' }).toPromise();
       return response
     } catch (error) {
       console.log(error)

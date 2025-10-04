@@ -16,7 +16,7 @@ export class Timeline implements OnInit, OnDestroy {
   private readonly ttp = inject(TextToSpeechService)
   private readonly asteroidService = inject(AsteroidService)
 
-  public imgb64 = signal('')
+  public imgPath = signal('')
   public imgId = signal('')
   public lat = signal<number | undefined>(undefined)
   public lng = signal<number | undefined>(undefined)
@@ -49,8 +49,8 @@ export class Timeline implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    this.prediction.set(await this.asteroidService.getPrediction(this.lat()!, this.lng()!, this.radius()!, 0) as string)
     this.getImage()
+    this.prediction.set(await this.asteroidService.getPrediction(this.lat()!, this.lng()!, this.radius()!, 0) as string)
     this.palabras = this.prediction().split(" ");
     this.mostrarPalabras();
     this.ttp.speak(this.prediction())
@@ -61,8 +61,8 @@ export class Timeline implements OnInit, OnDestroy {
   }
 
   async getImage() {
-    const buffer = await this.asteroidService.getModifiedImage(this.imgId(), 0)
-    this.imgb64.set('data:image/png;base64,' + this.arrayBufferToBase64(buffer as ArrayBuffer));
+    const image_path = await this.asteroidService.getModifiedImage(this.imgId(), 0)
+    this.imgPath.set(image_path!);
   }
 
    private arrayBufferToBase64(buffer: ArrayBuffer): string {
