@@ -1,11 +1,6 @@
 export interface Asteroid {
   id: string;
   name: string;
-  size: number;              // diameter in meters
-  mass: number;              // in kg
-  defaultSpeed: number;      // km/s
-  defaultAngle: number;      // degrees (0-90)
-  description: string;
 }
 
 export interface AsteroidConfig {

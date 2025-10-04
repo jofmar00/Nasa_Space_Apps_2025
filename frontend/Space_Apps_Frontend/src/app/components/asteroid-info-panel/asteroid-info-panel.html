@@ -4,41 +4,37 @@
   </button>
 
   <div class="panel-content">
-    <h2 class="asteroid-header">{{ selectedAsteroid().name }}</h2>
+    <h2 class="asteroid-header">{{ selectedAsteroid()?.name }}</h2>
 
-    <div class="asteroid-viewer" (click)="openCatalog()" title="Click to select another asteroid">
-      <asteroid-visualizer [asteroidName]="selectedAsteroid().name.toLowerCase()" />
+    <div class="asteroid-viewer" (click)="openCatalog()" title="Pulsa para seleccionar otro asteroide">
+      <asteroid-visualizer [asteroidName]="selectedAsteroid()?.name?.toLowerCase() || ''" />
     </div>
 
     <div class="asteroid-properties">
       <div class="property">
-        <span class="label">Size:</span>
-        <span class="value">{{ selectedAsteroid().size }} m</span>
+        <span class="label">Diametro:</span>
+        <span class="value">{{ formatDiameter(selectedAsteroid()?.diameter || 0) }}</span>
       </div>
 
       <div class="property">
-        <span class="label">Mass:</span>
-        <span class="value">{{ formatMass(selectedAsteroid().mass) }}</span>
+        <span class="label">Masa:</span>
+        <span class="value">{{ formatMass(selectedAsteroid()?.mass || 0) }}</span>
       </div>
 
-      <div class="property">
-        <span class="label">Default Speed:</span>
-        <span class="value">{{ selectedAsteroid().defaultSpeed }} km/s</span>
+      <div class="property" style="display: flex; flex-direction: column;">
+        <div style="display: flex; justify-content: space-between;">
+          <span class="label">Velocidad:</span>
+          <span class="value">{{ selectedAsteroid()?.speed }}km/s</span>
+        </div>
+        <input type="range" name="speed" min="10000" max="100000" [(ngModel)]="selectedAsteroid()!.speed" />
       </div>
-
-      <div class="property">
-        <span class="label">Default Angle:</span>
-        <span class="value">{{ selectedAsteroid().defaultAngle }}°</span>
-      </div>
-
-      <p class="description">{{ selectedAsteroid().description }}</p>
     </div>
 
     <button
       class="launch-button"
       [disabled]="!hasTarget() || isLaunching()"
       (click)="onLaunchClick()">
-      {{ isLaunching() ? 'Launching...' : 'Launch Impact' }}
+      {{ isLaunching() ? 'Lanzando...' : 'Lanzar asteroide' }}
     </button>
   </div>
 </aside>

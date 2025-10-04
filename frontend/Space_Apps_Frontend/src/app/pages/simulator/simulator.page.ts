@@ -1,10 +1,11 @@
-import { Component, ElementRef, AfterViewInit, ViewChild, signal } from '@angular/core';
+import { Component, ElementRef, AfterViewInit, ViewChild, signal, inject, OnInit } from '@angular/core';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
 import { AsteroidInfoPanel } from '../../components/asteroid-info-panel/asteroid-info-panel';
 import { Asteroid } from '../../models/asteroid.model';
 import { logCoordinates, pointToCoordinates, validateCoordinates, calculateDistance } from '../../utils/coordinate-utils';
+import { AsteroidService } from '../../services/asteroid.service';
 
 @Component({
   imports: [AsteroidInfoPanel],
