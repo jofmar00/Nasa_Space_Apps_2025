@@ -1,8 +1,9 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { features } from 'node:process';
+import OpenAI from 'openai';
 import { firstValueFrom } from 'rxjs';
+import { v4 as uuidv4 } from 'uuid'
 
 @Injectable()
 export class AsteroidsService {
@@ -11,6 +12,7 @@ export class AsteroidsService {
 
     private nasaApiKey: string | undefined;
     private mapsApiKey: string | undefined;
+    private openaiApiKey: string | undefined;
     private asteroid_diameters = new Map<number, number>([
         [2001580, 7112.7898709308],
         [2001620, 5248.5577337793],
@@ -23,13 +25,16 @@ export class AsteroidsService {
         [2025143, 835.6799428155],
         [2101955, 539.5602891983],
     ]);
+    private images = new Map<string, Buffer>();
 
     constructor(
         private readonly configService: ConfigService,
         private readonly httpService: HttpService
     ) {
         this.nasaApiKey = this.configService.get<string>('NASA_API_KEY');
-        this.mapsApiKey = this.configService.get<string>('MAPS_API_KEY')
+        this.mapsApiKey = this.configService.get<string>('MAPS_API_KEY');
+        this.openaiApiKey = this.configService.get<string>('OPENAI_API_KEY');
+
     }
 
     // TODO DARLE TAMBIEN LA MASA
@@ -74,7 +79,14 @@ export class AsteroidsService {
             const response = await firstValueFrom(
             this.httpService.get(url, { responseType: 'arraybuffer' }));
 
-            return Buffer.from(response.data, 'binary');
+            const id = uuidv4();
+            const image = Buffer.from(response.data, 'binary')
+            this.images.set(id, image);
+
+            return {
+                id,
+                image
+            }   
         }
         catch(err) {
             console.error(err);
@@ -118,6 +130,17 @@ export class AsteroidsService {
         catch (err) {
             console.error(err);
         }
+    }
+
+
+    async prueba() {
+        const client = new OpenAI({apiKey: this.openaiApiKey});
+        const response = await client.responses.create({
+            model: 'gpt-3.5-turbo',
+            input: 'Hola, soy Jorge, que tal?'
+        })
+
+        return response;
     }
 
 }

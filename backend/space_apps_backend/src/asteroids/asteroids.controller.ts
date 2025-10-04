@@ -19,8 +19,11 @@ export class AsteroidsController {
         @Res() res: Response,
     ) {
         console.log(`Longitude: ${longitude}, latitude: ${latitude}, diametro ${diameter}`)
-        const image = await this.asteroidService.getMapImage(latitude, longitude, diameter);
+        const result = await this.asteroidService.getMapImage(latitude, longitude, diameter);
+        const id = result!.id;
+        const image = result!.image;
         res.setHeader('Content-Type', 'image/png'); // <-- clave para que el navegador lo renderice
+        res.setHeader('Image-id', id);
         res.send(image);
     }
 
@@ -29,4 +32,26 @@ export class AsteroidsController {
         console.log(`Llamando con velocity: ${velocity}, mass: ${mass}`);
         return this.asteroidService.getExplosionRadius(velocity, mass);
     }
+
+    @Get('zoneinfo')
+    getZoneInfo(@Query('longitude') longitude: number, @Query('latitude') latitude: number, @Query('radius') radius: number) {
+        return this.asteroidService.getZoneInfo(longitude, latitude, radius);
+    }
+
+    @Get('prueba')
+    async getPrueba() {
+        return this.asteroidService.prueba();
+    }
+
+
+    @Get('/prediction')
+    async getPrediction(
+        @Query('img_id') img_id: number,
+        @Query('longitude') longitude: number,
+        @Query('latitude') latitude: number,
+        @Query('explosion_radio') explosion_radio: number,
+    ) {
+        return 'Hola'
+    }
+
 }
