@@ -215,7 +215,7 @@ export class AsteroidsService {
     // Creamos prompt
     if (years == 0) {
       prompt =
-        'Modify a satellite image of Earth. Focus only on the center: eplace it with a realistic sinkhole or crater.';
+        'Modify this sky-view image. Create a big and realistic crater from a meteorite impact.';
     } else if (years == 1) {
       prompt =
         'Create a realistic satellite image showing the same location one year after a meteorite impact. The scene must depict visible post-impact changes: a large eroded crater with softened edges, scattered debris, altered terrain textures, and signs of vegetation regrowth or sediment accumulation. If the area was water, show disturbed coastlines, sediment plumes, and partial flooding around the impact site. Maintain the appearance of an authentic satellite photograph with natural Earth tones, accurate lighting, and seamless blending with the surroundings, as if captured by a real Earth observation satellite. ';
