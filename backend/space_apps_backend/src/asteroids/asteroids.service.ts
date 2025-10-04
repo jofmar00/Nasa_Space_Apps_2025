@@ -39,6 +39,9 @@ export class AsteroidsService {
     this.mapsApiKey = this.configService.get<string>('MAPS_API_KEY');
     this.openaiApiKey = this.configService.get<string>('OPENAI_API_KEY');
   }
+  delay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
 
   // TODO DARLE TAMBIEN LA MASA
   getDiameterById(id: number) {
@@ -179,13 +182,12 @@ export class AsteroidsService {
 
     // Guaradmos la imagen
     const image = this.images.get(img_id)!;
-    console.log('Imagen: ' + image);
     const buffer = Buffer.from(image);
-    fs.writeFile(`./epico/${img_id}.png`, buffer, (err) => {
+    await fs.writeFile(`./epico/${img_id}.png`, buffer, (err) => {
       if (err) throw err;
       console.log('Imagen guardada correctamente');
     });
-    delay(1000);
+    await this.delay(5_000);
     const rgbaBuffer = await sharp(`./epico/${img_id}.png`)
       .ensureAlpha() // añade canal alfa si no existe
       .png()
@@ -235,7 +237,6 @@ export class AsteroidsService {
     });
     const data: any = await response.json();
     console.log(data);
-    fs.unlink(`${img_id}.png`, () => {});
     return data.data[0].url;
   }
 }
