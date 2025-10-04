@@ -72,7 +72,33 @@ export class AsteroidsController {
   async getModifiedImage(
     @Query('img_id') image_id: string,
     @Query('years') years: number,
+    @Res() res: Response,
   ) {
-    return await this.asteroidService.editImage(image_id, years);
+    const imagePath = await this.asteroidService.editImage(image_id, years);
+    if (!imagePath) {
+      res.status(500).send('Failed to generate image');
+      return;
+    }
+    const filename = imagePath.split('/').pop();
+    res.setHeader('Content-Type', 'text/plain');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.send(`/asteroids/file/${filename}`);
+  }
+
+  @Get('/file/:filename')
+  async getImageFile(@Param('filename') filename: string, @Res() res: Response) {
+    const fs = require('fs');
+    const path = require('path');
+    const filePath = path.join('./epico', filename);
+
+    if (!fs.existsSync(filePath)) {
+      res.status(404).send('Image not found');
+      return;
+    }
+
+    const imageBuffer = fs.readFileSync(filePath);
+    res.setHeader('Content-Type', 'image/png');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.send(imageBuffer);
   }
 }

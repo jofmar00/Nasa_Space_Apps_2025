@@ -8,7 +8,7 @@ import { ConfigModule } from '@nestjs/config';
   imports: [
     AsteroidsModule,
     ConfigModule.forRoot({
-      isGlobal: true, 
+      isGlobal: true,
     }),
   ],
   controllers: [AppController],

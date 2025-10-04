@@ -54,7 +54,7 @@ export class AsteroidService {
   public async getModifiedImage(imageId: string, years: number) {
     try {
       const response = await this.http.get(`${environment.API_URL}asteroids/modifiedImage?img_id=${imageId}&years=${years}`, { responseType: 'text' }).toPromise();
-      return response
+      return `http://localhost:3000${response}`
     } catch (error) {
       console.log(error)
       throw new Error()

@@ -23,6 +23,7 @@
     "deploy-docker": " docker tag space_apps_2025_backend:latest jofmar/space_apps_2025_backend:latest && docker push jofmar/space_apps_2025_backend:latest"
   },
   "dependencies": {
+    "@google/genai": "^1.22.0",
     "@nestjs/axios": "^4.0.1",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",

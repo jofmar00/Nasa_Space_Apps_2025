@@ -85,6 +85,6 @@ export class Timeline implements OnInit, OnDestroy {
     } else {
       clearInterval(intervalo);
     }
-  }, 100); // medio segundo por palabra
+  }, 50); // medio segundo por palabra
 }
 }

@@ -2,10 +2,10 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
+import { GoogleGenAI } from '@google/genai';
 import { delay, firstValueFrom } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 import fs from 'fs';
-import FormData from 'form-data';
 import fetch from 'node-fetch';
 import sharp from 'sharp';
 
@@ -174,8 +174,6 @@ export class AsteroidsService {
   }
 
   async editImage(img_id: string, years: number) {
-    // Creamos cliente
-    const client = new OpenAI({ apiKey: this.openaiApiKey });
     if (!this.images.has(img_id)) {
       console.error(`No está cacheada la imagen ${img_id} TONTO`);
       return;
@@ -189,52 +187,65 @@ export class AsteroidsService {
       console.log('Imagen guardada correctamente');
     });
     await this.delay(5_000);
-    const rgbaBuffer = await sharp(`./epico/${img_id}.png`)
-      .ensureAlpha() // añade canal alfa si no existe
-      .png()
-      .toBuffer();
 
-    const mascara = await sharp(`./epico/mask.png`)
-      .ensureAlpha() // añade canal alfa si no existe
-      .png()
-      .toBuffer();
+    // Leer la imagen y convertirla a base64
+    const imageBuffer = await fs.promises.readFile(`./epico/${img_id}.png`);
+    const base64Image = imageBuffer.toString('base64');
 
-    const form = new FormData();
-
-    form.append('image', rgbaBuffer, {
-      contentType: 'image/png',
-      filename: `${img_id}.png`,
-    });
-
-    form.append('mask', mascara, {
-      contentType: 'image/png',
-      filename: `mask.png`,
-    });
-
-    let prompt;
+    let promptText;
     // Creamos prompt
     if (years == 0) {
-      prompt =
-        'Modify this sky-view image. Create a big and realistic crater from a meteorite impact.';
+      promptText =
+        'Using the provided satellite image, add a large meteorite crater in the center. Make it look realistic with altered terrain.';
     } else if (years == 1) {
-      prompt =
-        'Create a realistic satellite image showing the same location one year after a meteorite impact. The scene must depict visible post-impact changes: a large eroded crater with softened edges, scattered debris, altered terrain textures, and signs of vegetation regrowth or sediment accumulation. If the area was water, show disturbed coastlines, sediment plumes, and partial flooding around the impact site. Maintain the appearance of an authentic satellite photograph with natural Earth tones, accurate lighting, and seamless blending with the surroundings, as if captured by a real Earth observation satellite. ';
+      promptText =
+        'Using the provided satellite image, modify it to show the same location one year after a meteorite impact. The scene must depict visible post-impact changes: a large eroded crater with softened edges, scattered debris, altered terrain textures, and signs of vegetation regrowth or sediment accumulation. If the area was water, show disturbed coastlines, sediment plumes, and partial flooding around the impact site. Maintain the appearance of an authentic satellite photograph with natural Earth tones, accurate lighting, and seamless blending with the surroundings.';
     } else {
+      promptText =
+        'Using the provided satellite image, modify it to show the long-term effects of a meteorite impact with significant landscape changes and recovery.';
     }
-    form.append('prompt', prompt);
-    form.append('n', 1);
-    form.append('size', '1024x1024');
 
-    const response = await fetch('https://api.openai.com/v1/images/edits', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-        ...form.getHeaders(),
+    // Usar Gemini 2.5 Flash Image
+    const geminiApiKey = this.configService.get<string>('GEMINI_API_KEY');
+    const ai = new GoogleGenAI({ apiKey: geminiApiKey });
+
+    const prompt = [
+      {
+        inlineData: {
+          mimeType: 'image/png',
+          data: base64Image,
+        },
       },
-      body: form,
+      { text: promptText },
+    ];
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash-image',
+      contents: prompt,
     });
-    const data: any = await response.json();
-    console.log(data);
-    return data.data[0].url;
+
+    // Procesar la respuesta
+    if (!response.candidates || !response.candidates[0]?.content?.parts) {
+      console.error('No se generó imagen en la respuesta');
+      return null;
+    }
+
+    for (const part of response.candidates[0].content.parts) {
+      if (part.inlineData) {
+        const imageData = part.inlineData.data;
+        if (!imageData) {
+          console.error('No se encontró data en inlineData');
+          continue;
+        }
+        const buffer = Buffer.from(imageData, 'base64');
+        const outputPath = `./epico/${img_id}_edited.png`;
+        fs.writeFileSync(outputPath, buffer);
+        console.log(`Imagen editada guardada en ${outputPath}`);
+        return outputPath;
+      }
+    }
+
+    console.error('No se generó imagen en la respuesta');
+    return null;
   }
 }

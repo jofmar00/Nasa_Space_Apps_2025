@@ -9,7 +9,7 @@ export class TextToSpeechService {
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'es-Es'; // Default language
       utterance.pitch = 1; // Default pitch
-      utterance.rate = 1; // Default rate
+      utterance.rate = 1.2; // Default rate
       window.speechSynthesis.speak(utterance);
     }
   }
