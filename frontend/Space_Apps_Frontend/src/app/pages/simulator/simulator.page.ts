@@ -40,6 +40,8 @@ export class SimulatorPage implements AfterViewInit {
   private isDragging = false;
   private readonly textureRotationOffset = 180; // Earth texture is rotated 180 degrees
   private imageb64 = signal('')
+  private imageId = signal('')
+  private craterRadius = signal<number | undefined>(undefined)
 
   private readonly asteroidSservice = inject(AsteroidService)
   private readonly routeService = inject(Router)
@@ -360,11 +362,12 @@ export class SimulatorPage implements AfterViewInit {
     if (!target || this.launchState() === 'launching') {
       return;
     }
-    const craterRadius = await this.asteroidSservice.getCraterRadius(asteroid.mass, asteroid.speed)
+    this.craterRadius.set(await this.asteroidSservice.getCraterRadius(asteroid.mass, asteroid.speed))
     
-    if(craterRadius) {
-      const buffer = await this.asteroidSservice.getCoordinatesImage(this.targetPoint()!.lat, this.targetPoint()!.lng, craterRadius*2)
+    if(this.craterRadius()) {
+      const { img: buffer, imgId } = await this.asteroidSservice.getCoordinatesImage(this.targetPoint()!.lat, this.targetPoint()!.lng, this.craterRadius()!*2)
 
+      this.imageId.set(imgId!)
       this.imageb64.set('data:image/png;base64,' + this.arrayBufferToBase64(buffer as ArrayBuffer));
     }
 
@@ -493,7 +496,7 @@ export class SimulatorPage implements AfterViewInit {
       this.targetPoint.set(null);
 
       if (this.imageb64()) {
-        this.routeService.navigate(['/timeline'], { state: { b64: this.imageb64() } })
+        this.routeService.navigate(['/timeline'], { state: { b64: this.imageb64(), id: this.imageId(), lat: this.coordinates()?.lat, lng: this.coordinates()?.lng, radius: this.craterRadius() } })
       }
 
     }, 1500);

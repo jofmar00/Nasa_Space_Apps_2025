@@ -3,6 +3,7 @@ import { Component, inject, input, OnDestroy, OnInit, signal } from '@angular/co
 import { StarBackground } from '../../components/star-background/star-background';
 import { NavigationStart, Router } from '@angular/router';
 import { TextToSpeechService } from '../../services/text-to-speech.service';
+import { AsteroidService } from '../../services/asteroid.service';
 
 @Component({
   standalone: true,
@@ -13,9 +14,15 @@ import { TextToSpeechService } from '../../services/text-to-speech.service';
 export class Timeline implements OnInit, OnDestroy {
   private readonly router = inject(Router)
   private readonly ttp = inject(TextToSpeechService)
+  private readonly asteroidService = inject(AsteroidService)
 
   public imgb64 = signal('')
-  texto = "Tras un año del impacto del meteorito en la región cercana a la ciudad de Moscú, Rusia, los efectos devastadores todavía se hacen sentir en la zona. Gran parte de la ciudad de Moscú ha sufrido daños catastróficos, con edificios colapsados y calles obstruidas por escombros. La población local ha sido gravemente afectada, con un alto número de heridos y fallecidos a causa del impacto. Los recursos de emergencia han estado trabajando incansablemente para tratar de restablecer la normalidad en la región, pero las labores de rescate se han visto obstaculizadas debido a la magnitud de la destrucción. Además, se han presentado problemas de suministro de agua potable y alimentos debido a la interrupción de las infraestructuras básicas. El impacto medioambiental también ha sido significativo, con áreas boscosas cercanas completamente arrasadas y la contaminación del aire y del suelo como consecuencia de la explosión. La fauna local se ha visto gravemente afectada, con muchas especies en peligro de extinción. En cuanto a la situación geopolítica de la región, el impacto del meteorito ha generado tensiones adicionales entre Rusia y los países vecinos. Se han desplegado fuerzas militares para garantizar la seguridad en el área afectada y se han establecido medidas de control fronterizo más estrictas. A pesar de los esfuerzos de reconstrucción en curso, la región de Mos";
+  public imgId = signal('')
+  public lat = signal<number | undefined>(undefined)
+  public lng = signal<number | undefined>(undefined)
+  public radius = signal<number | undefined>(undefined)
+  public prediction = signal('')
+
   palabras: string[] = [];
   palabrasMostradas: string[] = [];
   indice = 0;
@@ -24,6 +31,10 @@ export class Timeline implements OnInit, OnDestroy {
     const nav = this.router.getCurrentNavigation();
     if (nav?.extras.state) {
       this.imgb64.set(nav.extras.state['b64'])
+      this.imgId.set(nav.extras.state['id'])
+      this.lat.set(nav.extras.state['lat'])
+      this.lng.set(nav.extras.state['lng'])
+      this.radius.set(nav.extras.state['radius'])
     } else {
       this.router.navigate([''])
     }
@@ -35,14 +46,15 @@ export class Timeline implements OnInit, OnDestroy {
     });
     // window.addEventListener('beforeunload', () => {
     //   this.ttp.clear();
-    // });
+    // });s
   }
 
   async ngOnInit() {
-    this.palabras = this.texto.split(" ");
+    this.prediction.set(await this.asteroidService.getPrediction(this.lat()!, this.lng()!, this.radius()!, 0) as string)
+
+    this.palabras = this.prediction().split(" ");
     this.mostrarPalabras();
-    console.log('adawd')
-    this.ttp.speak(this.texto)
+    this.ttp.speak(this.prediction())
   }
 
   ngOnDestroy(): void {

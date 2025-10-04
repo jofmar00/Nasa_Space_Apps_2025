@@ -28,7 +28,30 @@ export class AsteroidService {
 
   public async getCoordinatesImage(latitude: number, longitude: number, diameter: number) {
     try {
-      const response = await this.http.get(`${environment.API_URL}asteroids/image?longitude=${longitude}&latitude=${latitude}&diameter=${diameter}`, { responseType: 'arraybuffer' }).toPromise();
+      const response = await this.http.get(`${environment.API_URL}asteroids/image?longitude=${longitude}&latitude=${latitude}&diameter=${diameter}`, { responseType: 'arraybuffer', observe: 'response' }).toPromise();
+      return {
+        img: response?.body,
+        imgId: response?.headers.get('Image-Id')
+      }
+    } catch (error) {
+      console.log(error)
+      throw new Error()
+    }
+  }
+
+  public async getPrediction(latitude: number, longitude: number, radius: number, years: number) {
+    try {
+      const response = await this.http.get<string>(`${environment.API_URL}asteroids/prediction?longitude=${longitude}&latitude=${latitude}&explosion_radio=${radius}&years=${years}`).toPromise();
+      return response
+    } catch (error) {
+      console.log(error)
+      throw new Error()
+    }
+  }
+
+  public async getModifiedImage(imageId: string, years: number) {
+    try {
+      const response = await this.http.get(`${environment.API_URL}asteroids/modifiedImage?img_id=${imageId}&years=${years}`, { responseType: 'arraybuffer' }).toPromise();
       return response
     } catch (error) {
       console.log(error)
