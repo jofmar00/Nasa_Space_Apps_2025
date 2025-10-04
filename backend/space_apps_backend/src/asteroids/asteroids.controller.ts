@@ -29,7 +29,9 @@ export class AsteroidsController {
     const id = result!.id;
     const image = result!.image;
     res.setHeader('Content-Type', 'image/png'); // <-- clave para que el navegador lo renderice
-    res.setHeader('Image-id', id);
+    res.setHeader('X-Image-Id', id);
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Expose-Headers', 'X-Image-Id');
     res.send(image);
   }
 

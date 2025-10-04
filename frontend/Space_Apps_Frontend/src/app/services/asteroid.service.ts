@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../environments/environment.development';
 
@@ -29,9 +29,12 @@ export class AsteroidService {
   public async getCoordinatesImage(latitude: number, longitude: number, diameter: number) {
     try {
       const response = await this.http.get(`${environment.API_URL}asteroids/image?longitude=${longitude}&latitude=${latitude}&diameter=${diameter}`, { responseType: 'arraybuffer', observe: 'response' }).toPromise();
+
+      console.log(response?.clone().headers.keys())
+
       return {
         img: response?.body,
-        imgId: response?.headers.get('Image-Id')
+        imgId: response?.headers.get('x-image-id')
       }
     } catch (error) {
       console.log(error)
@@ -41,11 +44,10 @@ export class AsteroidService {
 
   public async getPrediction(latitude: number, longitude: number, radius: number, years: number) {
     try {
-      const response = await this.http.get<string>(`${environment.API_URL}asteroids/prediction?longitude=${longitude}&latitude=${latitude}&explosion_radio=${radius}&years=${years}`).toPromise();
+      const response = await this.http.get(`${environment.API_URL}asteroids/prediction?longitude=${longitude}&latitude=${latitude}&explosion_radio=${radius}&years=${years}`, {responseType: 'text'}).toPromise();
       return response
     } catch (error) {
-      console.log(error)
-      throw new Error()
+      throw error
     }
   }
 

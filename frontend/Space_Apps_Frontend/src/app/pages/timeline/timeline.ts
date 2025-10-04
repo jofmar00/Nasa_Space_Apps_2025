@@ -30,7 +30,6 @@ export class Timeline implements OnInit, OnDestroy {
   constructor() {
     const nav = this.router.getCurrentNavigation();
     if (nav?.extras.state) {
-      this.imgb64.set(nav.extras.state['b64'])
       this.imgId.set(nav.extras.state['id'])
       this.lat.set(nav.extras.state['lat'])
       this.lng.set(nav.extras.state['lng'])
@@ -51,7 +50,7 @@ export class Timeline implements OnInit, OnDestroy {
 
   async ngOnInit() {
     this.prediction.set(await this.asteroidService.getPrediction(this.lat()!, this.lng()!, this.radius()!, 0) as string)
-
+    this.getImage()
     this.palabras = this.prediction().split(" ");
     this.mostrarPalabras();
     this.ttp.speak(this.prediction())
@@ -61,8 +60,23 @@ export class Timeline implements OnInit, OnDestroy {
     this.ttp.clear()
   }
 
+  async getImage() {
+    const buffer = await this.asteroidService.getModifiedImage(this.imgId(), 0)
+    this.imgb64.set('data:image/png;base64,' + this.arrayBufferToBase64(buffer as ArrayBuffer));
+  }
+
+   private arrayBufferToBase64(buffer: ArrayBuffer): string {
+    let binary = '';
+    const bytes = new Uint8Array(buffer);
+    const len = bytes.byteLength;
+    for (let i = 0; i < len; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    return window.btoa(binary);
+  }
+
   mostrarPalabras() {
-  const intervalo = setInterval(() => {
+    const intervalo = setInterval(() => {
     if (this.indice < this.palabras.length) {
       this.palabrasMostradas.push(this.palabras[this.indice]);
       this.indice++;

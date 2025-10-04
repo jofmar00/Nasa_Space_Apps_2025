@@ -2,15 +2,12 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
-import { firstValueFrom } from 'rxjs';
+import { delay, firstValueFrom } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
-<<<<<<< HEAD
-import fs from 'fs'
-import FormData from "form-data";
+import fs from 'fs';
+import FormData from 'form-data';
 import fetch from 'node-fetch';
-import sharp from "sharp";
-=======
->>>>>>> d960b4a (text to speech)
+import sharp from 'sharp';
 
 @Injectable()
 export class AsteroidsService {
@@ -118,125 +115,127 @@ export class AsteroidsService {
     else return 3;
   }
 
-    async getZoneInfo(longitud: number, latitud: number, radio_metros: number) {
-        const url = `https://api.geoapify.com/v2/places?categories=populated_place&filter=circle:${longitud},${latitud},${radio_metros}&bias=proximity:${longitud},${latitud}&limit=20&apiKey=f96d276a61904cf08414922723b78977`;
-        try {
-            const response = await firstValueFrom(this.httpService.get(url));
-            let population_count = 0;
-            response.data.features.forEach(feature => {
-                let population = feature?.properties?.datasource?.raw?.population;
-                if (population) {
-                    population_count += population;
-                }
-            });
+  async getZoneInfo(longitud: number, latitud: number, radio_metros: number) {
+    const url = `https://api.geoapify.com/v2/places?categories=populated_place&filter=circle:${longitud},${latitud},${radio_metros}&bias=proximity:${longitud},${latitud}&limit=20&apiKey=f96d276a61904cf08414922723b78977`;
+    try {
+      const response = await firstValueFrom(this.httpService.get(url));
+      let population_count = 0;
+      response.data.features.forEach((feature) => {
+        const population = feature?.properties?.datasource?.raw?.population;
+        if (population) {
+          population_count += population;
+        }
+      });
 
-            return population_count;
-        }
-        catch (err) {
-            console.error(err);
-        }
+      return population_count;
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async getPrediccion(
+    longitud: number,
+    latitud: number,
+    radio: number,
+    momento_temporal: number,
+  ) {
+    const client = new OpenAI({ apiKey: this.openaiApiKey });
+    const response = await client.chat.completions.create({
+      model: 'gpt-3.5-turbo',
+      messages: [
+        {
+          role: 'system',
+          content:
+            'Vas a generar un escenario lo más realista posible después del impacto de un meteorito en el planeta tierra.' +
+            'Te darán datos sobre el radio de la explosión que genera el impacto del meteorito, una localizacion en formato longitud, latitud y una cantidad de tiempo desde el impacto ' +
+            'A partir de estos datos, crea un escenario realista de las consecuencias del impacto en el momento temporal indicado, abarcando como este impacto afecta al terreno,' +
+            ' a la civilizacion, a la situacion medioambiental y a la situacion geopolitica en ese momento dado de tiempo.' +
+            'No des generalidades, la respuesta debe de estar construida para la localizacion que se te indica, debes de tratar de enfocar la respuesta a la zona afectada, con nombres ' +
+            'especificos de ciudades y zonas afectadas, es extremadamente importante que no menciones en ningun momento las coordenadas, ni las palabras "latitud" y "longitud".' +
+            'Si el instante temporal es mayor a 0 años, habla del proceso de recuperacion de estos factores en la region afectada' +
+            'Hila el contenido de tu respuesta sin mencionar los temas que te hemos pedido directamente, especificamente, no nombres de manera directa "geopolitica" y "situacion medioambiental" ' +
+            'Redacta la respuesta como un narrador omnisciente en tercera persona',
+        },
+        {
+          role: 'user',
+          content: `Ha caido un meteorito en longitud: ${longitud}, latitud: ${latitud}, con un radio de impacto: ${radio} km. Dame las situacion del impacto despues de ${momento_temporal} años`,
+        },
+      ],
+      max_tokens: 350,
+    });
+
+    client.images.edit;
+
+    return response.choices[0].message.content;
+  }
+
+  async editImage(img_id: string, years: number) {
+    // Creamos cliente
+    const client = new OpenAI({ apiKey: this.openaiApiKey });
+    if (!this.images.has(img_id)) {
+      console.error(`No está cacheada la imagen ${img_id} TONTO`);
+      return;
     }
 
+    // Guaradmos la imagen
+    const image = this.images.get(img_id)!;
+    console.log('Imagen: ' + image);
+    const buffer = Buffer.from(image);
+    fs.writeFile(`./epico/${img_id}.png`, buffer, (err) => {
+      if (err) throw err;
+      console.log('Imagen guardada correctamente');
+    });
+    delay(1000);
+    const rgbaBuffer = await sharp(`./epico/${img_id}.png`)
+      .ensureAlpha() // añade canal alfa si no existe
+      .png()
+      .toBuffer();
 
-    async getPrediccion(longitud: number, latitud: number, radio: number, momento_temporal: number) {
-        const client = new OpenAI({apiKey: this.openaiApiKey});
-        const response = await client.chat.completions.create({
-            model: 'gpt-3.5-turbo',
-            messages: [
-                {
-                    role: 'system',
-                    content: 
-                    'Vas a generar un escenario lo más realista posible después del impacto de un meteorito en el planeta tierra.' +
-                    'Te darán datos sobre el radio de la explosión que genera el impacto del meteorito, una localizacion en formato longitud, latitud y una cantidad de tiempo desde el impacto ' +
-                    'A partir de estos datos, crea un escenario realista de las consecuencias del impacto en el momento temporal indicado, abarcando como este impacto afecta al terreno,' +
-                    ' a la civilizacion, a la situacion medioambiental y a la situacion geopolitica en ese momento dado de tiempo.' +
-                    'No des generalidades, la respuesta debe de estar construida para la localizacion que se te indica, debes de tratar de enfocar la respuesta a la zona afectada, con nombres ' +
-                    'especificos de ciudades y zonas afectadas, es extremadamente importante que no menciones en ningun momento las coordenadas, ni las palabras "latitud" y "longitud".' +
-                    'Si el instante temporal es mayor a 0 años, habla del proceso de recuperacion de estos factores en la region afectada' +
-                    'Hila el contenido de tu respuesta sin mencionar los temas que te hemos pedido directamente, especificamente, no nombres de manera directa "geopolitica" y "situacion medioambiental" ' +
-                    'Redacta la respuesta como un narrador omnisciente en tercera persona'
-                },
-                {
-                    role: 'user',
-                    content: `Ha caido un meteorito en longitud: ${longitud}, latitud: ${latitud}, con un radio de impacto: ${radio} km. Dame las situacion del impacto despues de ${momento_temporal} años`,
-                }
-            ],
-            max_tokens: 350,
-        })
+    const mascara = await sharp(`./epico/mask.png`)
+      .ensureAlpha() // añade canal alfa si no existe
+      .png()
+      .toBuffer();
 
-        client.images.edit
+    const form = new FormData();
 
-        return response.choices[0].message.content;
+    form.append('image', rgbaBuffer, {
+      contentType: 'image/png',
+      filename: `${img_id}.png`,
+    });
+
+    form.append('mask', mascara, {
+      contentType: 'image/png',
+      filename: `mask.png`,
+    });
+
+    let prompt;
+    // Creamos prompt
+    if (years == 0) {
+      prompt =
+        'Modify a satellite image of Earth. Focus only on the center:  ' +
+        '- If the center shows land, replace it with a realistic sinkhole or crater, deep and irregular, with cracks, shadows, displaced soil, and natural color variations, blending seamlessly with the surrounding terrain.  ' +
+        '- If the center shows water, replace it with strong turbulent waves, with foam, ripples, and light reflections, contrasting with calmer water around.  ' +
+        'Keep the overall image looking like an authentic satellite photo, with natural Earth tones, realistic lighting, consistent resolution, and no alterations outside the central area.  ';
+    } else if (years == 1) {
+      prompt =
+        'Create a realistic satellite image showing the same location one year after a meteorite impact. The scene must depict visible post-impact changes: a large eroded crater with softened edges, scattered debris, altered terrain textures, and signs of vegetation regrowth or sediment accumulation. If the area was water, show disturbed coastlines, sediment plumes, and partial flooding around the impact site. Maintain the appearance of an authentic satellite photograph with natural Earth tones, accurate lighting, and seamless blending with the surroundings, as if captured by a real Earth observation satellite. ';
+    } else {
     }
+    form.append('prompt', prompt);
+    form.append('n', 1);
+    form.append('size', '1024x1024');
 
-    async editImage(img_id: string, years: number) {
-
-        // Creamos cliente
-        const client = new OpenAI({apiKey: this.openaiApiKey});
-        if (!this.images.has(img_id)) {
-            console.error(`No está cacheada la imagen ${img_id} TONTO`);
-            return;
-        }
-
-        // Guaradmos la imagen
-        const image = this.images.get(img_id)!;
-        const buffer = Buffer.from(image)
-        fs.writeFile(`./epico/${img_id}.png`, buffer, (err) => {
-          if (err) throw err;
-          console.log('Imagen guardada correctamente');
-        });
-        const rgbaBuffer = await sharp(`./epico/${img_id}.png`)
-            .ensureAlpha() // añade canal alfa si no existe
-            .png()
-            .toBuffer();
-
-         const mascara = await sharp(`./epico/mask.png`)
-            .ensureAlpha() // añade canal alfa si no existe
-            .png()
-            .toBuffer();
-
-        const form = new FormData();
-
-        form.append('image', rgbaBuffer, {
-          contentType: 'image/png',
-          filename: `${img_id}.png`,
-        });
-
-        form.append('mask', mascara,{
-          contentType: 'image/png',
-          filename: `mask.png`,
-        })
-
-        let prompt;
-        // Creamos prompt
-        if (years == 0) {
-            prompt = "Modify a satellite image of Earth. Focus only on the center:  " +
-                "- If the center shows land, replace it with a realistic sinkhole or crater, deep and irregular, with cracks, shadows, displaced soil, and natural color variations, blending seamlessly with the surrounding terrain.  " +
-                "- If the center shows water, replace it with strong turbulent waves, with foam, ripples, and light reflections, contrasting with calmer water around.  " +
-                "Keep the overall image looking like an authentic satellite photo, with natural Earth tones, realistic lighting, consistent resolution, and no alterations outside the central area.  ";
-
-        }
-        else if (years == 1) {
-            prompt = "Create a realistic satellite image showing the same location one year after a meteorite impact. The scene must depict visible post-impact changes: a large eroded crater with softened edges, scattered debris, altered terrain textures, and signs of vegetation regrowth or sediment accumulation. If the area was water, show disturbed coastlines, sediment plumes, and partial flooding around the impact site. Maintain the appearance of an authentic satellite photograph with natural Earth tones, accurate lighting, and seamless blending with the surroundings, as if captured by a real Earth observation satellite. ";
-        }
-        else {
-
-        }
-        form.append('prompt', prompt);
-        form.append('n', 1);
-        form.append('size', '1024x1024');
-
-        const response = await fetch('https://api.openai.com/v1/images/edits', {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-            ...form.getHeaders(),
-          },
-          body: form,
-        });
-        const data: any = await response.json();
-        console.log(data);  
-        fs.unlink(`${img_id}.png`, ()=>{});
-        return data.data[0].url;
-    }
+    const response = await fetch('https://api.openai.com/v1/images/edits', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        ...form.getHeaders(),
+      },
+      body: form,
+    });
+    const data: any = await response.json();
+    console.log(data);
+    fs.unlink(`${img_id}.png`, () => {});
+    return data.data[0].url;
+  }
 }
