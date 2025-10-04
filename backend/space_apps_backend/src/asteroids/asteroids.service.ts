@@ -3,7 +3,11 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
 import { firstValueFrom } from 'rxjs';
-import { v4 as uuidv4 } from 'uuid'
+import { v4 as uuidv4 } from 'uuid';
+import fs from 'fs'
+import FormData from "form-data";
+import fetch from 'node-fetch';
+import sharp from "sharp";
 
 @Injectable()
 export class AsteroidsService {
@@ -73,7 +77,7 @@ export class AsteroidsService {
 
     async getMapImage(latitude: number, longitude: number, diameter: number) {
         const zoom = this.getZoom(diameter);
-        const url = `${this.maps_api}?center=${latitude},${longitude}&scale=2&zoom=${zoom}&size=1920x1080&format=png&maptype=satellite&key=${this.mapsApiKey}`
+        const url = `${this.maps_api}?center=${latitude},${longitude}&scale=2&zoom=${zoom}&size=1024x1024&format=png&maptype=satellite&key=${this.mapsApiKey}`
 
         try {
             const response = await firstValueFrom(
@@ -133,14 +137,101 @@ export class AsteroidsService {
     }
 
 
-    async prueba() {
+    async getPrediccion(longitud: number, latitud: number, radio: number, momento_temporal: number) {
         const client = new OpenAI({apiKey: this.openaiApiKey});
-        const response = await client.responses.create({
+        const response = await client.chat.completions.create({
             model: 'gpt-3.5-turbo',
-            input: 'Hola, soy Jorge, que tal?'
+            messages: [
+                {
+                    role: 'system',
+                    content: 
+                    'Vas a generar un escenario lo más realista posible después del impacto de un meteorito en el planeta tierra.' +
+                    'Te darán datos sobre el radio de la explosión que genera el impacto del meteorito, una localizacion en formato longitud, latitud y una cantidad de tiempo desde el impacto ' +
+                    'A partir de estos datos, crea un escenario realista de las consecuencias del impacto en el momento temporal indicado, abarcando como este impacto afecta al terreno,' +
+                    ' a la civilizacion, a la situacion medioambiental y a la situacion geopolitica en ese momento dado de tiempo.' +
+                    'No des generalidades, la respuesta debe de estar construida para la localizacion que se te indica, debes de tratar de enfocar la respuesta a la zona afectada, con nombres ' +
+                    'especificos de ciudades y zonas afectadas, es extremadamente importante que no menciones en ningun momento las coordenadas, ni las palabras "latitud" y "longitud".' +
+                    'Si el instante temporal es mayor a 0 años, habla del proceso de recuperacion de estos factores en la region afectada' +
+                    'Hila el contenido de tu respuesta sin mencionar los temas que te hemos pedido directamente, especificamente, no nombres de manera directa "geopolitica" y "situacion medioambiental" ' +
+                    'Redacta la respuesta como un narrador omnisciente en tercera persona'
+                },
+                {
+                    role: 'user',
+                    content: `Ha caido un meteorito en longitud: ${longitud}, latitud: ${latitud}, con un radio de impacto: ${radio} km. Dame las situacion del impacto despues de ${momento_temporal} años`,
+                }
+            ],
+            max_tokens: 350,
         })
 
-        return response;
+        client.images.edit
+
+        return response.choices[0].message.content;
     }
 
+    async editImage(img_id: string, years: number) {
+
+        // Creamos cliente
+        const client = new OpenAI({apiKey: this.openaiApiKey});
+        if (!this.images.has(img_id)) {
+            console.error(`No está cacheada la imagen ${img_id} TONTO`);
+            return;
+        }
+
+        // Guaradmos la imagen
+        const image = this.images.get(img_id)!;
+        const buffer = Buffer.from(image)
+        fs.writeFile(`./epico/${img_id}.png`, buffer, (err) => {
+          if (err) throw err;
+          console.log('Imagen guardada correctamente');
+        });
+        const rgbaBuffer = await sharp(`./epico/${img_id}.png`)
+            .ensureAlpha() // añade canal alfa si no existe
+            .png()
+            .toBuffer();
+
+         const mascara = await sharp(`./epico/mask.png`)
+            .ensureAlpha() // añade canal alfa si no existe
+            .png()
+            .toBuffer();
+
+        const form = new FormData();
+
+        form.append('image', rgbaBuffer, {
+          contentType: 'image/png',
+          filename: `${img_id}.png`,
+        });
+
+        form.append('mask', mascara,{
+          contentType: 'image/png',
+          filename: `mask.png`,
+        })
+
+        let prompt;
+        // Creamos prompt
+        if (years == 0) {
+            prompt = "Modifica esta imagen con las consecuencias de impacto de un meteorito que acaba de suceder a partir de la siguiente imagen satelital." +
+            "Si el centro de la foto se corresponde con agua, genera una impresion de grandes oleajes, si es tierra, crea un socavon de tierra e incendio alrededor."
+        }
+        else if (years == 1) {
+
+        }
+        else {
+
+        }
+        form.append('prompt', prompt);
+        form.append('n', 1);
+        form.append('size', '1024x1024');
+
+        const response = await fetch('https://api.openai.com/v1/images/edits', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+            ...form.getHeaders(),
+          },
+          body: form,
+        });
+        const data = await response.json();
+        console.log(data);  
+        return data;
+    }
 }
