@@ -24,7 +24,7 @@
       <div class="property" style="display: flex; flex-direction: column;">
         <div style="display: flex; justify-content: space-between;">
           <span class="label">Velocidad:</span>
-          <span class="value">{{ selectedAsteroid()?.speed }}km/s</span>
+          <span class="value">{{ selectedAsteroid()?.speed }}m/s</span>
         </div>
         <input type="range" name="speed" min="10000" max="100000" [(ngModel)]="selectedAsteroid()!.speed" />
       </div>

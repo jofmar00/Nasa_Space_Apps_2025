@@ -6,6 +6,7 @@ import { AsteroidInfoPanel } from '../../components/asteroid-info-panel/asteroid
 import { Asteroid } from '../../models/asteroid.model';
 import { logCoordinates, pointToCoordinates, validateCoordinates, calculateDistance } from '../../utils/coordinate-utils';
 import { AsteroidService } from '../../services/asteroid.service';
+import { Router } from '@angular/router';
 
 @Component({
   imports: [AsteroidInfoPanel],
@@ -38,6 +39,10 @@ export class SimulatorPage implements AfterViewInit {
   private mouseDownPosition = { x: 0, y: 0 };
   private isDragging = false;
   private readonly textureRotationOffset = 180; // Earth texture is rotated 180 degrees
+  private imageb64 = signal('')
+
+  private readonly asteroidSservice = inject(AsteroidService)
+  private readonly routeService = inject(Router)
 
   ngAfterViewInit(): void {
     this.initThreeJS();
@@ -228,12 +233,12 @@ export class SimulatorPage implements AfterViewInit {
     if (intersects.length > 0) {
       const intersection = intersects[0];
       const point = intersection.point.clone();
-      console.log(intersection.point)
+      console.log(intersection)
 
       // Calculate coordinates using utility functions with texture rotation offset
       const coords = pointToCoordinates(point, -9);
-      console.log(coords)
       let { lat, lng } = coords;
+      console.log({ lat, lng })
 
       // Validate coordinates
       if (!validateCoordinates(lat, lng)) {
@@ -340,10 +345,27 @@ export class SimulatorPage implements AfterViewInit {
     this.renderer.render(this.scene, this.camera);
   }
 
-  protected onLaunchAsteroid(asteroid: Asteroid): void {
+  private arrayBufferToBase64(buffer: ArrayBuffer): string {
+    let binary = '';
+    const bytes = new Uint8Array(buffer);
+    const len = bytes.byteLength;
+    for (let i = 0; i < len; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    return window.btoa(binary);
+  }
+
+  protected async onLaunchAsteroid(asteroid: any) {
     const target = this.targetPoint();
     if (!target || this.launchState() === 'launching') {
       return;
+    }
+    const craterRadius = await this.asteroidSservice.getCraterRadius(asteroid.mass, asteroid.speed)
+    
+    if(craterRadius) {
+      const buffer = await this.asteroidSservice.getCoordinatesImage(this.targetPoint()!.lat, this.targetPoint()!.lng, craterRadius*2)
+
+      this.imageb64.set('data:image/png;base64,' + this.arrayBufferToBase64(buffer as ArrayBuffer));
     }
 
     logCoordinates(target.lat, target.lng, target.position, 'IMPACT TARGET');
@@ -452,10 +474,7 @@ export class SimulatorPage implements AfterViewInit {
     // Log impact
     const target = this.targetPoint();
     if (target) {
-      console.log('\n💥 IMPACT!');
-      console.log('═'.repeat(50));
       logCoordinates(target.lat, target.lng, target.position, 'IMPACT LOCATION');
-      console.log('Impact animation complete\n');
     }
 
     // Remove flying asteroid
@@ -472,7 +491,12 @@ export class SimulatorPage implements AfterViewInit {
       this.launchState.set('idle');
       this.removeMarker();
       this.targetPoint.set(null);
-    }, 1000);
+
+      if (this.imageb64()) {
+        this.routeService.navigate(['/timeline'], { state: { b64: this.imageb64() } })
+      }
+
+    }, 1500);
   }
 
   private createImpactFlash(): void {

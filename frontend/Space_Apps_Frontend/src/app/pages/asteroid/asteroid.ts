@@ -21,6 +21,5 @@ export class Asteroid implements OnInit{
   }
 
   ngOnInit(): void {
-    console.log(this.asteroids)
   }
 }

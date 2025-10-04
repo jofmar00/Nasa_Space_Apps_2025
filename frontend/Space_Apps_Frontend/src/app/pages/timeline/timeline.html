@@ -1,0 +1,13 @@
+<star-background />
+<main>
+  <div class="card">
+    <section>
+      <img [src]="imgb64()" alt="impact zone" />
+    </section>
+    <section>
+      <p>
+        <span *ngFor="let palabra of palabrasMostradas">{{ palabra }} </span>
+      </p>
+    </section>
+  </div>
+</main>

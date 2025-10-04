@@ -36,14 +36,8 @@ export function calculateLatitude(point: THREE.Vector3): number {
 export function calculateLongitude(point: THREE.Vector3): number {
   const normalizedPoint = point.clone().normalize();
   let lng = Math.atan2(normalizedPoint.z, normalizedPoint.x) * (180 / Math.PI);
-  // Apply texture rotation offset if needed
-  lng += 1;
-  
-  // Normalize to -180 to 180 range
-  lng = ((lng + 540) % 360) - 180;
-  console.log({lng})
 
-  return lng;
+  return lng * -1; // invert sign
 }
 
 /**
@@ -195,17 +189,4 @@ export function calculateDistance(lat1: number, lng1: number, lat2: number, lng2
  * @param label - Optional label for the log
  */
 export function logCoordinates(lat: number, lng: number, point?: THREE.Vector3, label: string = 'LOCATION'): void {
-  console.log(`\n${'='.repeat(50)}`);
-  console.log(`📍 ${label}`);
-  console.log(`${'='.repeat(50)}`);
-  console.log(`Decimal Degrees: ${lat.toFixed(6)}°, ${lng.toFixed(6)}°`);
-  console.log(`Formatted: ${formatDecimalDegrees(lat, lng)}`);
-  console.log(`DMS: ${formatDMS(lat, lng)}`);
-  console.log(`Location: ${getCardinalDescription(lat, lng)}`);
-
-  if (point) {
-    console.log(`3D Position: (${point.x.toFixed(4)}, ${point.y.toFixed(4)}, ${point.z.toFixed(4)})`);
-  }
-
-  console.log(`${'='.repeat(50)}\n`);
 }

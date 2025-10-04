@@ -53,7 +53,8 @@
     border-color: rgba(255, 255, 255, 0.5);
   }
 
-  &:active {
-    transform: translateY(0);
+  &.disabled {
+  background: gray;
+  border: gray
   }
 }

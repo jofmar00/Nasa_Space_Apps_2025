@@ -3,7 +3,9 @@
 <div class="splash-container">
   <div class="content">
     <nasa-logo />
-    <h1 class="title">Asteroid Impact Simulator</h1>
-    <button class="start-button" routerLink="">Start Simulation</button>
+    <h1 class="title">Simulador de impactos de asteroides</h1>
+    <button class="start-button" (click)="loading = true" [class.disabled]="loading" routerLink="simulator">
+      {{ loading ? 'Cargando...' : 'Empezar simulación' }}
+    </button>
   </div>
 </div>

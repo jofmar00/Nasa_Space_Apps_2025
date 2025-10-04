@@ -69,7 +69,6 @@ export class AsteroidInfoPanel implements OnInit {
 
   protected onLaunchClick(): void {
     if (!this.selectedAsteroid()) return;
-
     this.launchAsteroid.emit(this.selectedAsteroid() as FullAsteroid);
   }
 

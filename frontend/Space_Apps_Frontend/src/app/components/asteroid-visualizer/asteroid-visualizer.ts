@@ -174,12 +174,12 @@ export class AsteroidVisualizer implements AfterViewInit, OnDestroy {
 
       // Center the asteroid
       this.asteroid.position.x = -center.x;
-      this.asteroid.position.y = -center.y;
+      this.asteroid.position.y = -center.y + 0.1;
       this.asteroid.position.z = -center.z;
 
       // Scale to fit canvas nicely (target ~0.6 units)
       const maxDim = Math.max(size.x, size.y, size.z);
-      const scale = 1.5 / maxDim;
+      const scale = 1.7 / maxDim;
       this.asteroid.scale.setScalar(scale);
 
       // Apply material to all meshes

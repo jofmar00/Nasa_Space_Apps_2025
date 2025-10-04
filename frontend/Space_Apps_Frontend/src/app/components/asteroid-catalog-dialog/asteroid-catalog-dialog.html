@@ -1,4 +1,5 @@
-<div class="dialog-backdrop" [class.hidden]="!isOpen()" (click)="onBackdropClick($event)">
+@if (isOpen()) {
+  <div class="dialog-backdrop" [class.hidden]="!isOpen()" (click)="onBackdropClick($event)">
   <div class="dialog-content">
     <div class="dialog-header">
       <h2>Select Asteroid</h2>
@@ -17,3 +18,4 @@
     </div>
   </div>
 </div>
+}
