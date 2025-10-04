@@ -15,17 +15,20 @@ main {
   padding: 2rem;
 
   .card {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 5rem;
+    
     border-radius: calc(10px + 2rem);
     padding: 2rem;
     background-color: rgb(62, 52, 60);
-    place-items: center;
 
-    @media (width > 640px) {
+    .grid {
+display: grid;
+    grid-template-columns: 1fr;
+    gap: 5rem;
+    place-items: center;
+      @media (width > 640px) {
       grid-template-columns: 1fr 1fr;
-      gap: 10rem;
+      gap: 8rem;
+    }
     }
 
     img {
@@ -66,3 +69,26 @@ main {
   }
 }
   
+.back-button {
+  padding: 1rem 3rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: #F44336;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  text-decoration: none;
+  display: block;
+  width: fit-content;
+  margin-bottom: 1rem;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(102, 126, 234, 0.6);
+    border-color: rgba(255, 255, 255, 0.5);r: gray
+  }
+}

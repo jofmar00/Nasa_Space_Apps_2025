@@ -1,13 +1,13 @@
 <star-background />
 <main>
   <div class="card">
-    <section>
+    <a routerLink="/simulator" class="back-button">Volver</a>
+    <div class="grid">
+      <section>
       @if(imgPath()) {
         <img [src]="imgPath()" alt="impact zone" />
       } @else {
-        <span class="skeleton" style="height:400px;width:400px;">
-          &zwnj;
-        </span>
+        <img [src]="originalImage()" alt="impact zone" />
       }
     </section>
     <section>
@@ -15,5 +15,6 @@
         <span *ngFor="let palabra of palabrasMostradas">{{ palabra }} </span>
       </p>
     </section>
+    </div>
   </div>
 </main>

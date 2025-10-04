@@ -1,13 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, input, OnDestroy, OnInit, signal } from '@angular/core';
 import { StarBackground } from '../../components/star-background/star-background';
-import { NavigationStart, Router } from '@angular/router';
+import { NavigationStart, Router, RouterLink } from '@angular/router';
 import { TextToSpeechService } from '../../services/text-to-speech.service';
 import { AsteroidService } from '../../services/asteroid.service';
 
 @Component({
   standalone: true,
-  imports: [CommonModule, StarBackground],
+  imports: [CommonModule, StarBackground, RouterLink],
   templateUrl: './timeline.html',
   styleUrl: './timeline.scss'
 })
@@ -21,6 +21,7 @@ export class Timeline implements OnInit, OnDestroy {
   public lat = signal<number | undefined>(undefined)
   public lng = signal<number | undefined>(undefined)
   public radius = signal<number | undefined>(undefined)
+  public originalImage = signal('')
   public prediction = signal('')
 
   palabras: string[] = [];
@@ -34,6 +35,7 @@ export class Timeline implements OnInit, OnDestroy {
       this.lat.set(nav.extras.state['lat'])
       this.lng.set(nav.extras.state['lng'])
       this.radius.set(nav.extras.state['radius'])
+      this.originalImage.set(nav.extras.state['b64'])
     } else {
       this.router.navigate([''])
     }
